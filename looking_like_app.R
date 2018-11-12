@@ -10,6 +10,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
+library(readxl)
 #empty dashboard
 header <-   dashboardHeader()
 
@@ -34,7 +35,8 @@ body <- dashboardBody(
           tabName = "set_up_farm",
           tabBox(
             title = "Set up farm",
-            tabPanel(h3("Zone1")),
+            tabsetPanel(
+            tabPanel(h3("Zone1"),width=12), #width not working
             numericInput(
               "size_zone1",
               label = h3("Size of zone 1 (ha)"),
@@ -42,38 +44,22 @@ body <- dashboardBody(
               min = 100,
               max = 6000, #can't be larger than total farm area
               step =100),
-            selectInput(
-              "crop_sequ_wheat",
-              label = h5("Years for wheat:"),
-                               choices = c("Year 1", "Year 2", "Year 3", "Year 4", "Year 5",
-                                           "Year 6", "Year 7", "Year 8", "Year 9", "Year 10"),
-                               selected = 1,
-                               multiple = TRUE),
-            selectInput(
-              "crop_sequ_barley",
-              label = h5("Years for barley:"),
-              choices = c("Year 1", "Year 2", "Year 3", "Year 4", "Year 5",
-                          "Year 6", "Year 7", "Year 8", "Year 9", "Year 10"),
-              selected = 1,
-              multiple = TRUE), 
-            selectInput(
-              "crop_sequ_canola",
-              label = h5("Years for canola:"),
-              choices = c("Year 1", "Year 2", "Year 3", "Year 4", "Year 5",
-                          "Year 6", "Year 7", "Year 8", "Year 9", "Year 10"),
-              selected = 1,
-              multiple = TRUE),
-            selectInput(
-              "crop_sequ_legume",
-              label = h5("Years for legume:"),
-              choices = c("Year 1", "Year 2", "Year 3", "Year 4", "Year 5",
-                          "Year 6", "Year 7", "Year 8", "Year 9", "Year 10"),
-              selected = 1,
-              multiple = TRUE),
-            tabPanel(h3("Zone2")),
+            
+            wellPanel(
+            h3("Crop sequence for 10 years"),
+            numericInput("year_seq_zone1", "Year:", 1),
+            selectInput("crop_seq_zone1", "Crop type:",
+                        choices = c("wheat", "barley", "canola", "legume", "pasture")),
+            actionButton("addButton", "update"),
+            #h4("create a table that gets updated with above inputs"),
+            tableOutput("table")
+            ),
+            tabPanel(h3("Zone2", "test")),
+            
             tabPanel(h3("Zone3"))
                 )
-    ),
+    )),
+    
         tabItem(
           tabName = "tell_me",
           selectInput("stationID", 
@@ -122,7 +108,24 @@ ui <- dashboardPage(header =dashboardHeader(),
                     )
 
 
-server <- function(input, output) { }
+server <- function(input, output) {
+
+  crop_rotation <- read_excel("C:/Users/ouz001/DATASCHOOL/SythProject/Progress/data_sets_as_input/data_sets.xlsx", sheet = "rotation2")
+  values <- reactiveValues()
+  values$df <- crop_rotation
+  addData <- observe({
+    
+    # your action button condition
+    if(input$addButton > 0) {
+      # create the new line to be added from your inputs
+      newclm <- isolate(c(input$year_seq_zone1, input$crop_seq_zone1))
+      # update your data
+      # note the unlist of newLine, this prevents a bothersome warning message that the rbind will return regarding rownames because of using isolate.
+      isolate(values$df <- rbind(as.matrix(values$df), unlist(newclm)))
+      }
+  })
+  output$table <- renderTable({values$df}, include.rownames=T)
+}
 
 shinyApp(ui, server)
 

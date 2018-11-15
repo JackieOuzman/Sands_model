@@ -48,6 +48,7 @@ df1 <- left_join(df1, treat_temp, by = 'yr_since_app') %>%
   select(year = year.x, crop, cost = cost.x, yld_resp_since_applied
          = yld_resp_perct_10yrs.y)
 df1 <- left_join(df1, yld_resp_crop_treat, by = 'crop')
+df1 <- mutate(df1, treatment = treatment_selected)
 
 return(df1)
 }

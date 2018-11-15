@@ -19,6 +19,9 @@ crop_yld <- read_excel(zone, sheet = "crop_yld")
 df2 <- crop_seq
 df2 <- left_join(df2, crop_yld, by = 'crop')
 df2 <- left_join(df2, crop_price, by = 'crop')
+df2 <- df2 %>% 
+  mutate(pres_value_fact = 1/(1+0.06)^ year)
+df2 <- mutate(df2, zone = zone_selected)
   return(df2)
 }
 

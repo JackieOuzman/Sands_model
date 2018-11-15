@@ -19,11 +19,9 @@ df1_treat_zone_x <- function(treatment_selected) {
 #bring in file for treatmnet
 treat <- read_excel(treatment, sheet = "treat")
 yld_resp_crop_treat <- read_excel(treatment, sheet = "yld_resp_crop_treat")
-crop_price <- read_excel(treatment, sheet = "crop_price")
 
 #these would be user defined and will be removed when shiny is working
 crop_seq <- read_excel(treatment, sheet = "crop_seq")
-crop_yld <- read_excel(treatment, sheet = "crop_yld")
 #create a df and join parameters related to the treatment selection
 df1 <- data.frame(1:10)
 colnames(df1) <- "year"
@@ -54,7 +52,7 @@ df1 <- left_join(df1, yld_resp_crop_treat, by = 'crop')
 return(df1)
 }
 
-df1_treat_zone_x("sowing on edge of row")
+df1_treat_zone_x <- df1_treat_zone_x("sowing on edge of row")
 
 #testing method
 
